@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://biltongbites.koines.org/sitemap.xml
+

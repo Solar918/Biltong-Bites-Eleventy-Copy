@@ -1,0 +1,23 @@
+<article class="card product" tabindex="0"
+  data-title="{{ product.data.title | lower }}"
+  data-desc="{{ (product.data.description or '') | lower }}"
+  data-flavour="{{ (product.data.flavour or []).join(' ').toLowerCase() }}"
+  data-quantity="{{ (product.data.quantity or []).join(' ').toLowerCase() }}"
+  data-price="{{ product.data.price or '' }}">
+  <div class="card-media">
+    {% if product.data.image %}
+      <img loading="lazy" src="{{ product.data.image }}" alt="{{ product.data.title }} screenshot" />
+    {% else %}
+      <div class="placeholder" aria-hidden="true"></div>
+    {% endif %}
+
+  </div>
+  <div class="card-body">
+    <h3 class="card-title">{{ product.data.title }}</h3>
+    <p class="card-desc">{{ product.data.description }}</p>
+    <div class="card-actions">
+      <a class="btn btn-ghost more" href="{{ product.url }}">Details</a>
+      <button type="button" class="btn add-to-cart" data-id="{{ product.url }}" data-title="{{ product.data.title }}" data-price="{{ product.data.price }}" aria-label="Add to cart">Add to Cart</button>
+    </div>
+  </div>
+</article>
