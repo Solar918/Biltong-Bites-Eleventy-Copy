@@ -58,14 +58,20 @@
   quantityRoot?.addEventListener('change', applyFilter);
 
 
-  // Click-toggle filter dropdown menus and close on mouseleave
+  // Click or hover filter dropdown menus and close on mouseleave
   $$('.filter-toggle').forEach(btn => {
     const dropdown = btn.closest('.filter-dropdown');
+
+    btn.addEventListener('mouseenter', () => {
+      dropdown.classList.add('open');
+    });
+
     btn.addEventListener('click', e => {
       e.stopPropagation();
       dropdown.classList.toggle('open');
     });
-    // Stay open until mouse leaves the whole dropdown area
+
+    // Stay open until mouse leaves the whole dropdown area (including bridge)
     dropdown.addEventListener('mouseleave', () => {
       dropdown.classList.remove('open');
     });
