@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ page.title or site.name }} · {{ site.title }}</title>
+    <meta name="description" content="{{ page.description or site.description }}" />
+
+    <meta property="og:title" content="{{ page.title or site.name }}" />
+    <meta property="og:description" content="{{ page.description or site.description }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ site.url }}{{ page.url }}" />
+    <meta property="og:image" content="{{ site.url }}/assets/images/placeholder.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@{{ site.author.twitter }}" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="/assets/styles/main.css" as="style" />
+    <link rel="stylesheet" href="/assets/styles/main.css" />
+    <script>
+      // Theme boot: avoid flash of wrong theme
+      (function () {
+        try {
+          const stored = localStorage.getItem('theme');
+          const theme = stored || 'dark';
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.classList.remove('no-js');
+        } catch (_e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    {% include "components/header.njk" %}
+
+    <main id="main" tabindex="-1">
+      {{ content | safe }}
+    </main>
+
+    {% include "components/footer.njk" %}
+    <script defer src="/assets/scripts/main.js"></script>
+  </body>
+  </html>

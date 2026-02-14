@@ -1,0 +1,11 @@
+{
+  "name": "Biltong Bites",
+  "title": "Biltong Bites co",
+  "description": "At Biltong Bites, we’re passionate about crafting premium, tender biltong made with care from start to finish. We hand-make all our biltong using carefully sourced meat from animals raised with less stress—resulting in a naturally more tender and less acidic product. The result? A flavor-packed snack that’s high in protein, low in additives, and full of goodness. Whether you’re after a quick bite or a wholesome treat, Biltong Bites delivers quality you can taste.",
+  "url": "https://biltongbites.koines.org",
+  "author": {
+    "name": "Biltong Bites",
+    "email": "biltongbites25@gmail.com",
+    "github": "Solar918/Biltong-Bites-Eleventy"
+  }
+}
