@@ -14,11 +14,10 @@
       if (icon) icon.textContent = theme === 'dark' ? '🌙' : '☀️';
     });
   }
-  // Initialize theme from saved preference or OS setting
+  // Initialize theme from saved preference or default to dark
   try {
     const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setTheme(stored || (prefersDark ? 'dark' : 'light'));
+    setTheme(stored || 'dark');
   } catch {}
   themeToggles.forEach(btn => {
     btn.addEventListener('click', () => {

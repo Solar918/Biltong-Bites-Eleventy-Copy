@@ -1,0 +1,18 @@
+
+> biltong-bites@0.1.0 dev
+> ELEVENTY_ENV=development npx @11ty/eleventy --serve
+
+[11ty] Writing ./_site/robots.txt from ./src/robots.njk
+[11ty] Writing ./_site/sitemap.xml from ./src/sitemap.njk
+[11ty] Writing ./_site/404.html from ./src/404.njk
+[11ty] Writing ./_site/cart/index.html from ./src/cart.njk
+[11ty] Writing ./_site/checkout/index.html from ./src/checkout.njk
+[11ty] Writing ./_site/index.html from ./src/index.njk
+[11ty] Writing ./_site/products/product-1000og/index.html from ./src/products/product-1000og.md (liquid)
+[11ty] Writing ./_site/products/product-100og/index.html from ./src/products/product-100og.md (liquid)
+[11ty] Writing ./_site/products/product-250og/index.html from ./src/products/product-250og.md (liquid)
+[11ty] Writing ./_site/products/product-500og/index.html from ./src/products/product-500og.md (liquid)
+[11ty] Writing ./_site/products/product-50og/index.html from ./src/products/product-50og.md (liquid)
+[11ty] Copied 8 Wrote 11 files in 0.47 seconds (v3.1.2)
+[11ty] Watching…
+[11ty] Server at http://localhost:8081/
