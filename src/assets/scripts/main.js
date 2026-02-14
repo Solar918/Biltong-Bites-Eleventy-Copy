@@ -58,17 +58,29 @@
   quantityRoot?.addEventListener('change', applyFilter);
 
 
-  // Click-toggle filter dropdown menus and close on outside click
+  // Click-toggle filter dropdown menus and close on mouseleave
   $$('.filter-toggle').forEach(btn => {
     const dropdown = btn.closest('.filter-dropdown');
     btn.addEventListener('click', e => {
       e.stopPropagation();
       dropdown.classList.toggle('open');
     });
+    // Stay open until mouse leaves the whole dropdown area
+    dropdown.addEventListener('mouseleave', () => {
+      dropdown.classList.remove('open');
+    });
   });
-  document.addEventListener('click', () => {
-    $$('.filter-dropdown.open').forEach(dd => dd.classList.remove('open'));
-  });
+
+  // Mobile Nav Toggle
+  const navToggle = document.querySelector('.nav-toggle');
+  const nav = document.querySelector('.nav');
+  if (navToggle && nav) {
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+      navToggle.setAttribute('aria-expanded', !expanded);
+      nav.classList.toggle('is-active');
+    });
+  }
 
   // Simple prefetch on hover
   const prefetch = (url) => {
@@ -77,6 +89,49 @@
 document.addEventListener('mouseover', (e) => {
   const a = e.target.closest('a[href^="http"]'); if (a) prefetch(a.href);
 }, { passive: true });
+
+// Cart utility functions
+function purgeExpiredCart() {
+  const now = Date.now();
+  const cart = JSON.parse(localStorage.getItem('biltongCart') || '[]');
+  const valid = cart.filter(item => item.timestamp + 48 * 60 * 60 * 1000 > now);
+  localStorage.setItem('biltongCart', JSON.stringify(valid));
+  return valid;
+}
+
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('biltongCart') || '[]');
+  const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const badge = document.querySelector('.cart-count');
+  if (badge) {
+    badge.textContent = count > 0 ? count : '';
+  }
+}
+purgeExpiredCart();
+updateCartCount();
+
+function showAddedFeedback(btn) {
+  const originalContent = btn.innerHTML;
+  btn.innerHTML = '<span>Added!</span>';
+  btn.classList.add('added');
+  btn.disabled = true;
+
+  // Trigger a small bounce on the cart badge if it exists
+  const badge = document.querySelector('.cart-count');
+  if (badge) {
+    badge.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.3)' },
+      { transform: 'scale(1)' }
+    ], { duration: 300 });
+  }
+
+  setTimeout(() => {
+    btn.innerHTML = originalContent;
+    btn.classList.remove('added');
+    btn.disabled = false;
+  }, 1500);
+}
 
 // Quantity selector logic on detail page
 (() => {
@@ -110,16 +165,6 @@ document.addEventListener('mouseover', (e) => {
     updatePrice(val);
   });
 
-  // Cart logic: persist items in localStorage for 48h
-  function purgeExpiredCart() {
-    const now = Date.now();
-    const cart = JSON.parse(localStorage.getItem('biltongCart') || '[]');
-    const valid = cart.filter(item => item.timestamp + 48 * 60 * 60 * 1000 > now);
-    localStorage.setItem('biltongCart', JSON.stringify(valid));
-    return valid;
-  }
-  purgeExpiredCart();
-
   const addToCartBtn = selector.querySelector('.add-to-cart');
   addToCartBtn.addEventListener('click', () => {
     const qty = parseInt(input.value, 10);
@@ -136,7 +181,8 @@ document.addEventListener('mouseover', (e) => {
       cart.push({ id, title, quantity: qty, price: unitPrice, timestamp: now });
     }
     localStorage.setItem('biltongCart', JSON.stringify(cart));
-    alert(qty + ' item(s) added to cart');
+    updateCartCount();
+    showAddedFeedback(addToCartBtn);
   });
 })();
 
@@ -170,7 +216,9 @@ document.addEventListener('mouseover', (e) => {
           cart.push({ id, title, quantity: qty, price, timestamp: now });
         }
         localStorage.setItem('biltongCart', JSON.stringify(cart));
-        alert(qty + ' item(s) added to cart');
+
+        updateCartCount();
+        showAddedFeedback(btn);
       });
     });
   })();
@@ -226,6 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('biltongCart', JSON.stringify(cartData));
       li.remove();
       recalcTotal();
+      // Update global badge
+      const badge = document.querySelector('.cart-count');
+      const count = cartData.reduce((acc, item) => acc + item.quantity, 0);
+      if (badge) badge.textContent = count > 0 ? count : '';
     });
 
     // Unit price for this line
@@ -247,6 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = q;
         priceSpan.textContent = `$${(item.price * q).toFixed(2)}`;
         recalcTotal();
+        // Update global badge
+        const badge = document.querySelector('.cart-count');
+        const count = cartData.reduce((acc, item) => acc + item.quantity, 0);
+        if (badge) badge.textContent = count > 0 ? count : '';
       }
     }
     minusBtn.addEventListener('click', () => updateLine(Math.max(1, parseInt(input.value, 10) - 1)));
