@@ -15,9 +15,6 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:creator" content="@{{ site.author.twitter }}" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="preload" href="/assets/styles/main.css" as="style" />
     <link rel="stylesheet" href="/assets/styles/main.css" />
     <script>
@@ -25,7 +22,8 @@
       (function () {
         try {
           const stored = localStorage.getItem('theme');
-          const theme = stored || 'dark';
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = stored || (prefersDark ? 'dark' : 'light');
           document.documentElement.setAttribute('data-theme', theme);
           document.documentElement.classList.remove('no-js');
         } catch (_e) {}

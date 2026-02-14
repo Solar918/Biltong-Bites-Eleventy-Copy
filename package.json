@@ -1,5 +1,5 @@
 {
-  "name": "biltong-bites",
+  "name": "interactive-11ty-portfolio",
   "version": "0.1.0",
   "private": true,
   "description": "Interactive personal portfolio built with Eleventy (11ty)",
@@ -12,3 +12,4 @@
     "@11ty/eleventy": "^3.0.0"
   }
 }
+
