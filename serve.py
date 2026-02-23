@@ -275,6 +275,62 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
             
+        if self.path == '/api/contact':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_data = self.rfile.read(content_length)
+            
+            try:
+                data = json.loads(post_data.decode('utf-8'))
+                name = data.get('name', 'Anonymous')
+                email = data.get('email', 'No Email')
+                message = data.get('message', '')
+                
+                smtp_server = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
+                smtp_port = int(os.environ.get("SMTP_PORT", 587))
+                sender_email = os.environ.get("SENDER_EMAIL")
+                sender_password = os.environ.get("SENDER_PASSWORD")
+                
+                if sender_email and sender_password:
+                    msg = EmailMessage()
+                    msg['Subject'] = f'New Contact Form Message from {name}'
+                    msg['From'] = sender_email
+                    msg['To'] = sender_email
+                    msg['Reply-To'] = email
+                    
+                    template_path = os.path.join(HERE, "contact_template.md")
+                    if os.path.exists(template_path):
+                        with open(template_path, 'r', encoding='utf-8') as f:
+                            template_content = f.read()
+                    else:
+                        template_content = "Name: {contact_name}\nEmail: {contact_email}\nMessage:\n{contact_message}"
+                        
+                    body = template_content.replace('{contact_name}', name).replace('{contact_email}', email).replace('{contact_message}', message)
+                    
+                    msg.set_content(body)
+                    
+                    import re
+                    html_body = body
+                    html_body = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', html_body)
+                    html_body = re.sub(r'^### (.*)', r'<h3>\1</h3>', html_body, flags=re.MULTILINE)
+                    html_body = html_body.replace('\n\n', '<br><br>').replace('\n', '<br>')
+                    html_body = f"<html><body style='font-family: sans-serif;'>\n{html_body}\n</body></html>"
+                    
+                    msg.add_alternative(html_body, subtype='html')
+                    with smtplib.SMTP(smtp_server, smtp_port) as server:
+                        server.starttls()
+                        server.login(sender_email, sender_password)
+                        server.send_message(msg)
+                        
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'status': 'success'}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
+            return
+
         if self.path == '/api/orders':
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)

@@ -17,7 +17,7 @@ WORKDIR /app
 # Copy the built site from the builder stage
 COPY --from=builder /app/_site /app/_site
 # Copy backend script and email templates
-COPY serve.py email_template.md order_complete_template.md /app/
+COPY serve.py email_template.md order_complete_template.md contact_template.md /app/
 
 # Create a volume mount point for the database to persist orders
 VOLUME /app/data
