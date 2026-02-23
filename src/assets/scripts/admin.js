@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   filterCustomer.addEventListener('change', render);
-  filterProduct.addEventListener('input', render);
+  filterProduct.addEventListener('change', render);
 
   // Initial load
   loadData();

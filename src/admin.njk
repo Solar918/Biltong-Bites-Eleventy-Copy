@@ -24,7 +24,12 @@ description: Manage Biltong Bites Customers and Orders
     </div>
     <div style="flex: 1;">
       <label for="filter-product" style="display: block; font-size: 0.875rem; color: var(--muted); margin-bottom: 0.5rem;">Filter by Product</label>
-      <input type="text" id="filter-product" placeholder="e.g., Spicy Biltong" style="width: 100%; padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius);" />
+      <select id="filter-product" style="width: 100%; padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius);">
+        <option value="">All Products</option>
+        {% for product in collections.products %}
+        <option value="{{ product.data.title | lower }}">{{ product.data.title }}</option>
+        {% endfor %}
+      </select>
     </div>
   </div>
 
