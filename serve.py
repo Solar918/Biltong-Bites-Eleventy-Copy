@@ -169,6 +169,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     self.send_response(500)
                     self.end_headers()
                     self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
+            elif self.path == '/api/admin/reset_orders':
+                try:
+                    conn = sqlite3.connect(DB_PATH)
+                    cursor = conn.cursor()
+                    cursor.execute('DELETE FROM orders')
+                    cursor.execute("DELETE FROM sqlite_sequence WHERE name='orders'")
+                    conn.commit()
+                    conn.close()
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'status': 'success'}).encode('utf-8'))
+                except Exception as e:
+                    self.send_response(500)
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
     def do_POST(self):
@@ -213,6 +229,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                             else:
                                 template_content = "Order #{order_id} is complete!"
                                 
+                            # Convert DB Name (Last First) to Email Name (First Last)
+                            email_name = cust_name
+                            name_parts = cust_name.split(' ')
+                            if len(name_parts) > 1:
+                                last = name_parts[0]
+                                first = ' '.join(name_parts[1:])
+                                email_name = f"{first} {last}"
+                                
                             # Format order items for the email
                             cart_list = json.loads(cart_data)
                             order_items_text = ""
@@ -220,7 +244,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                                 order_items_text += f"{item.get('title', 'Item')} x {item.get('quantity', 1)}, "
                             order_items_text = order_items_text.rstrip(', ')
                                 
-                            body = template_content.replace('{Customer Name}', cust_name).replace('{order_id}', str(order_id)).replace('{order_items}', order_items_text)
+                            # Replace environment variables specifically for this template as well
+                            body = template_content.replace('[ACCOUNT_NUMBER]', os.environ.get('ACCOUNT_NUMBER', '12345678'))
+                            body = body.replace('[PHONE_NUMBER]', os.environ.get('PHONE_NUMBER', '021 000 0000'))
+                                
+                            body = body.replace('{Customer Name}', email_name).replace('{order_id}', str(order_id)).replace('{order_items}', order_items_text)
                             
                             msg.set_content(body)
                             

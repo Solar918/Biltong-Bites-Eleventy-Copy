@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const viewOrdersBtn = document.getElementById('view-orders');
   const viewCustomersBtn = document.getElementById('view-customers');
   const viewCombinedBtn = document.getElementById('view-combined');
+  const resetOrdersBtn = document.getElementById('reset-orders-btn');
 
   const filterCustomer = document.getElementById('filter-customer');
   const filterProduct = document.getElementById('filter-product');
@@ -18,6 +19,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       rawData = await res.json();
+
+      // Sort customers alphabetically by last name (which is the first word since DB stores "Last First")
+      if (rawData.customers) {
+        rawData.customers.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
       populateCustomerDropdown();
       render();
     } catch (e) {
@@ -275,6 +282,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     viewOrdersBtn.classList.add('btn-ghost');
     viewCustomersBtn.classList.add('btn-ghost');
     render();
+  });
+
+  resetOrdersBtn.addEventListener('click', async () => {
+    if (confirm("🚨 WARNING: Are you absolutely sure you want to delete ALL orders? The next order will start at #1 again. This cannot be undone.")) {
+      try {
+        resetOrdersBtn.disabled = true;
+        resetOrdersBtn.innerText = "Resetting...";
+        const res = await fetch('/api/admin/reset_orders', { method: 'DELETE' });
+        if (res.ok) {
+          alert('All orders have been deleted and the order ID counter has been reset.');
+          await loadData();
+        } else {
+          const err = await res.json();
+          alert('Error resetting orders: ' + err.error);
+        }
+      } catch (e) {
+        alert('Error resetting orders: ' + e.message);
+      } finally {
+        resetOrdersBtn.disabled = false;
+        resetOrdersBtn.innerText = "Reset All Orders";
+      }
+    }
   });
 
   filterCustomer.addEventListener('change', render);
