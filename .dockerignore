@@ -1,7 +1,6 @@
 node_modules
 _site
 .git
-.env
 orders.db
 orders.db-journal
 .DS_Store
