@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% if env.GOOGLE_SITE_VERIFICATION %}
+    <meta name="google-site-verification" content="{{ env.GOOGLE_SITE_VERIFICATION }}" />
+    {% endif %}
     <title>{{ page.title or site.name }} · {{ site.title }}</title>
     <meta name="description" content="{{ page.description or site.description }}" />
 
@@ -20,6 +23,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="preload" href="/assets/styles/main.css" as="style" />
     <link rel="stylesheet" href="/assets/styles/main.css" />
+
+    {% if env.GOOGLE_ANALYTICS_ID %}
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ env.GOOGLE_ANALYTICS_ID }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '{{ env.GOOGLE_ANALYTICS_ID }}');
+    </script>
+    {% endif %}
+
     <script>
       // Theme boot: avoid flash of wrong theme
       (function () {
