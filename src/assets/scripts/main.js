@@ -61,13 +61,19 @@
   // Click-toggle filter dropdown menus and close on mouseleave
   $$('.filter-toggle').forEach(btn => {
     const dropdown = btn.closest('.filter-dropdown');
+    let timeout;
     btn.addEventListener('click', e => {
       e.stopPropagation();
       dropdown.classList.toggle('open');
     });
     // Stay open until mouse leaves the whole dropdown area
     dropdown.addEventListener('mouseleave', () => {
-      dropdown.classList.remove('open');
+      timeout = setTimeout(() => {
+        dropdown.classList.remove('open');
+      }, 5000);
+    });
+    dropdown.addEventListener('mouseenter', () => {
+      clearTimeout(timeout);
     });
   });
 
@@ -337,20 +343,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const preview = document.getElementById('email-preview');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerText;
+    submitBtn.innerText = "Processing...";
+    submitBtn.disabled = true;
+
     const email = form.email.value.trim();
     const phone = form.phone.value.trim();
-    const rawName = form.name.value.trim();
+    const firstName = form.firstName.value.trim();
+    const lastName = form.lastName.value.trim();
 
     // Split name for DB (Last First) and Email (First Last)
-    let dbName = rawName;
-    let emailName = rawName;
-    const nameParts = rawName.split(' ').filter(Boolean);
-    if (nameParts.length > 1) {
-      const last = nameParts.pop();
-      const first = nameParts.join(' ');
-      dbName = `${last} ${first}`;
-      emailName = `${first} ${last}`;
-    }
+    const dbName = `${lastName} ${firstName}`;
+    const emailName = `${firstName} ${lastName}`;
 
     const cart = JSON.parse(localStorage.getItem('biltongCart') || '[]');
     let body = `Thank you for your order!\n\nPlease complete your payment to our bank account:\n\nAccount Name: Biltong Bites\nAccount Number: 12345678\nSort Code: 00-00-00\n\nOrder details:\n`;
@@ -385,6 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.error('Failed to submit order to API:', err);
       if (preview) preview.textContent = "There was an error processing your order. Please try again.";
+    } finally {
+      submitBtn.innerText = originalText;
+      submitBtn.disabled = false;
     }
   });
 });

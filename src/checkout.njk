@@ -11,18 +11,28 @@ description: Enter your details to receive an order confirmation email
   <form id="checkout-form">
     <div class="form-row">
       <div>
-        <label for="name">First and Last Name</label>
-        <input type="text" id="name" name="name" required />
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" required />
       </div>
       <div>
-        <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" name="phone" required />
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" required />
       </div>
     </div>
-    <label for="email">Email Address</label>
-    <input type="email" id="email" name="email" required style="margin-bottom: 1.5rem;" />
+    <div class="form-row">
+      <div>
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" required pattern="^([\-\+\s\(\)]*[0-9]){9,11}[\-\+\s\(\)]*$" minlength="9" title="Phone number must contain between 9 and 11 digits (e.g., 021 234 5678)" />
+      </div>
+      <div>
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="Please provide a valid email address (e.g., name@example.com)" />
+      </div>
+    </div>
     <button type="submit" class="btn">Place Order & Send Email</button>
   </form>
   <div id="email-preview" class="email-preview"></div>
-  <a href="/cart/" class="btn btn-ghost">Back to cart</a>
+  <div style="margin-top: 2rem;">
+    <a href="/cart/" class="btn btn-ghost">Back to cart</a>
+  </div>
 </article>

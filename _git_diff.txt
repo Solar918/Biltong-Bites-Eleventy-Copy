@@ -1,0 +1,305 @@
+﻿diff --git a/src/_includes/components/product-card.njk b/src/_includes/components/product-card.njk
+index 25632bf..059aed7 100644
+--- a/src/_includes/components/product-card.njk
++++ b/src/_includes/components/product-card.njk
+@@ -4,13 +4,13 @@
+   data-flavour="{{ (product.data.flavour or []).join(' ').toLowerCase() }}"
+   data-quantity="{{ (product.data.quantity or []).join(' ').toLowerCase() }}"
+   data-price="{{ product.data.price or '' }}">
+-  <div class="card-media">
++  <a href="{{ product.url }}" class="card-media">
+     {% if product.data.image %}
+       <img loading="lazy" src="{{ product.data.image }}" alt="{{ product.data.title }}" />
+     {% else %}
+       <img loading="lazy" src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=800" alt="Beef Jerky / Biltong" />
+     {% endif %}
+-  </div>
++  </a>
+   <div class="card-body">
+     <h3 class="card-title">{{ product.data.title }}</h3>
+     <p class="card-desc">{{ product.data.description }}</p>
+diff --git a/src/assets/images/250og.jpeg b/src/assets/images/250og.jpeg
+deleted file mode 100644
+index 92543cb..0000000
+Binary files a/src/assets/images/250og.jpeg and /dev/null differ
+diff --git a/src/assets/scripts/main.js b/src/assets/scripts/main.js
+index 40ba700..61eae92 100644
+--- a/src/assets/scripts/main.js
++++ b/src/assets/scripts/main.js
+@@ -61,13 +61,19 @@
+   // Click-toggle filter dropdown menus and close on mouseleave
+   $$('.filter-toggle').forEach(btn => {
+     const dropdown = btn.closest('.filter-dropdown');
++    let timeout;
+     btn.addEventListener('click', e => {
+       e.stopPropagation();
+       dropdown.classList.toggle('open');
+     });
+     // Stay open until mouse leaves the whole dropdown area
+     dropdown.addEventListener('mouseleave', () => {
+-      dropdown.classList.remove('open');
++      timeout = setTimeout(() => {
++        dropdown.classList.remove('open');
++      }, 5000);
++    });
++    dropdown.addEventListener('mouseenter', () => {
++      clearTimeout(timeout);
+     });
+   });
+ 
+@@ -337,20 +343,19 @@ document.addEventListener('DOMContentLoaded', () => {
+   const preview = document.getElementById('email-preview');
+   form.addEventListener('submit', async (e) => {
+     e.preventDefault();
++    const submitBtn = form.querySelector('button[type="submit"]');
++    const originalText = submitBtn.innerText;
++    submitBtn.innerText = "Processing...";
++    submitBtn.disabled = true;
++
+     const email = form.email.value.trim();
+     const phone = form.phone.value.trim();
+-    const rawName = form.name.value.trim();
++    const firstName = form.firstName.value.trim();
++    const lastName = form.lastName.value.trim();
+ 
+     // Split name for DB (Last First) and Email (First Last)
+-    let dbName = rawName;
+-    let emailName = rawName;
+-    const nameParts = rawName.split(' ').filter(Boolean);
+-    if (nameParts.length > 1) {
+-      const last = nameParts.pop();
+-      const first = nameParts.join(' ');
+-      dbName = `${last} ${first}`;
+-      emailName = `${first} ${last}`;
+-    }
++    const dbName = `${lastName} ${firstName}`;
++    const emailName = `${firstName} ${lastName}`;
+ 
+     const cart = JSON.parse(localStorage.getItem('biltongCart') || '[]');
+     let body = `Thank you for your order!\n\nPlease complete your payment to our bank account:\n\nAccount Name: Biltong Bites\nAccount Number: 12345678\nSort Code: 00-00-00\n\nOrder details:\n`;
+@@ -385,6 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
+     } catch (err) {
+       console.error('Failed to submit order to API:', err);
+       if (preview) preview.textContent = "There was an error processing your order. Please try again.";
++    } finally {
++      submitBtn.innerText = originalText;
++      submitBtn.disabled = false;
+     }
+   });
+ });
+diff --git a/src/assets/styles/main.css b/src/assets/styles/main.css
+index fb5a039..9db4a9f 100644
+--- a/src/assets/styles/main.css
++++ b/src/assets/styles/main.css
+@@ -35,7 +35,7 @@
+ 
+ html,
+ body {
+-  height: 100%
++  min-height: 100vh;
+ }
+ 
+ body {
+@@ -122,7 +122,7 @@ h6 {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+-  padding: 1rem 0;
++  padding: 1.5rem 0;
+ }
+ 
+ .brand {
+@@ -304,7 +304,7 @@ h6 {
+ }
+ 
+ .products {
+-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
++  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+ }
+ 
+ /* Cards */
+@@ -512,10 +512,24 @@ h6 {
+   font-family: var(--font-heading);
+   background: var(--primary);
+   color: var(--primary-contrast);
++  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+ 
+ .qty-btn.add-to-cart:hover {
+   background: color-mix(in srgb, var(--primary) 90%, white);
++  transform: translateY(-2px);
++  box-shadow: var(--shadow);
++}
++
++/* Hide arrows on number input */
++.qty-input::-webkit-outer-spin-button,
++.qty-input::-webkit-inner-spin-button {
++  -webkit-appearance: none;
++  margin: 0;
++}
++.qty-input[type=number] {
++  -moz-appearance: textfield;
++  appearance: textfield;
+ }
+ 
+ /* Forms */
+@@ -556,10 +570,11 @@ label {
+   display: flex;
+   gap: 1.5rem;
+   align-items: center;
++  flex-wrap: wrap;
+ }
+ 
+ .search input {
+-  min-width: 300px;
++  min-width: min(100%, 300px);
+   padding: 0.75rem 1rem;
+ }
+ 
+@@ -662,6 +677,10 @@ label {
+ }
+ 
+ /* Cart Page */
++.cart-page {
++  padding-top: 6rem; /* lower it slightly */
++}
++
+ .cart-page h1 {
+   font-size: 4rem;
+   margin-bottom: 3rem;
+@@ -768,6 +787,17 @@ label {
+   }
+ }
+ 
++@media (max-width: 400px) {
++  .hero h1 {
++    font-size: 2.8rem;
++  }
++
++  .controls {
++    flex-direction: column;
++    align-items: stretch;
++  }
++}
++
+ .visually-hidden {
+   position: absolute;
+   width: 1px;
+diff --git a/src/cart.njk b/src/cart.njk
+index 1237ae1..9217b04 100644
+--- a/src/cart.njk
++++ b/src/cart.njk
+@@ -16,6 +16,8 @@ description: Review and manage your cart items
+     <span></span>
+   </div>
+   <div id="cart-contents"></div>
+-  <a href="/" class="btn">Back to products</a>
+-  <a href="/checkout/" class="btn">Checkout Now</a>
++  <div class="cart-actions" style="display: flex; gap: 1.5rem; margin-top: 2rem;">
++    <a href="/" class="btn">Back to products</a>
++    <a href="/checkout/" class="btn">Checkout Now</a>
++  </div>
+ </article>
+diff --git a/src/checkout.njk b/src/checkout.njk
+index 99bf174..7473265 100644
+--- a/src/checkout.njk
++++ b/src/checkout.njk
+@@ -11,18 +11,28 @@ description: Enter your details to receive an order confirmation email
+   <form id="checkout-form">
+     <div class="form-row">
+       <div>
+-        <label for="name">First and Last Name</label>
+-        <input type="text" id="name" name="name" required />
++        <label for="firstName">First Name</label>
++        <input type="text" id="firstName" name="firstName" required />
+       </div>
++      <div>
++        <label for="lastName">Last Name</label>
++        <input type="text" id="lastName" name="lastName" required />
++      </div>
++    </div>
++    <div class="form-row">
+       <div>
+         <label for="phone">Phone Number</label>
+-        <input type="tel" id="phone" name="phone" required />
++        <input type="tel" id="phone" name="phone" required pattern="^([\-\+\s\(\)]*[0-9]){9,11}[\-\+\s\(\)]*$" minlength="9" title="Phone number must contain between 9 and 11 digits (e.g., 021 234 5678)" />
++      </div>
++      <div>
++        <label for="email">Email Address</label>
++        <input type="email" id="email" name="email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="Please provide a valid email address (e.g., name@example.com)" />
+       </div>
+     </div>
+-    <label for="email">Email Address</label>
+-    <input type="email" id="email" name="email" required style="margin-bottom: 1.5rem;" />
+     <button type="submit" class="btn">Place Order & Send Email</button>
+   </form>
+   <div id="email-preview" class="email-preview"></div>
+-  <a href="/cart/" class="btn btn-ghost">Back to cart</a>
++  <div style="margin-top: 2rem;">
++    <a href="/cart/" class="btn btn-ghost">Back to cart</a>
++  </div>
+ </article>
+diff --git a/src/products/product-1000og.md b/src/products/product-1000og.md
+index 4f768cb..4141468 100644
+--- a/src/products/product-1000og.md
++++ b/src/products/product-1000og.md
+@@ -3,6 +3,7 @@ layout: layouts/product.njk
+ title: Original Biltong - 1kg
+ description: Perfect for sharing or savoring over timeÔÇörich, bold, and packed with flavor.
+ price: 50.00
++date: 2026-01-05
+ flavour: ["Original"]
+ quantity: ["1kg"]
+ url: https://example.com/hello
+diff --git a/src/products/product-100og.md b/src/products/product-100og.md
+index 0ccbe63..8b04b54 100644
+--- a/src/products/product-100og.md
++++ b/src/products/product-100og.md
+@@ -3,6 +3,7 @@ layout: layouts/product.njk
+ title: Original Biltong - 100g
+ description: A satisfying snack-sized serveÔÇöflavourful, protein-rich, and ready anytime.
+ price: 8.00
++date: 2026-01-02
+ flavour: ["Original"]
+ quantity: ["100g"]
+ url: https://example.com/hello
+diff --git a/src/products/product-250og.md b/src/products/product-250og.md
+deleted file mode 100644
+index d630741..0000000
+--- a/src/products/product-250og.md
++++ /dev/null
+@@ -1,10 +0,0 @@
+----
+-layout: layouts/product.njk
+-title: Original Biltong - 250g
+-description: Just the right size for a quick, delicious treat on the go.
+-price: 15.00
+-flavour: ["Original"]
+-quantity: ["250g"]
+-url: https://example.com/hello
+-image: /assets/images/250og.jpeg
+----
+diff --git a/src/products/product-500og.md b/src/products/product-500og.md
+index cfdf810..3ebd2df 100644
+--- a/src/products/product-500og.md
++++ b/src/products/product-500og.md
+@@ -3,6 +3,7 @@ layout: layouts/product.njk
+ title: Original Biltong - 500g
+ description: A hearty portion for the avid snacker, with authentic savanna taste.
+ price: 25.00
++date: 2026-01-04
+ flavour: ["Original"]
+ quantity: ["500g"]
+ url: https://example.com/hello
+diff --git a/src/products/product-50og.md b/src/products/product-50og.md
+index 4f5a482..2395b02 100644
+--- a/src/products/product-50og.md
++++ b/src/products/product-50og.md
+@@ -3,6 +3,7 @@ layout: layouts/product.njk
+ title: Original Biltong - 50g
+ description: A small, tasty hit of biltongÔÇöperfect for light snacking.
+ price: 5.00
++date: 2026-01-01
+ flavour: ["Original"]
+ quantity: ["50g"]
+ url: https://example.com/hello
