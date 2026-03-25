@@ -1,10 +1,14 @@
 <footer class="site-footer">
   <div class="container footer-grid">
     <p>© <span data-year></span> {{ site.author.name }} · Built with Eleventy</p>
-    <ul class="social">
-      <li><a href="https://github.com/{{ site.author.github }}" rel="me">GitHub</a></li>
-      <li><a href="https://twitter.com/{{ site.author.twitter }}" rel="me">Twitter</a></li>
-      <li><a href="https://www.linkedin.com/in/{{ site.author.linkedin }}" rel="me">LinkedIn</a></li>
-    </ul>
+    <div class="footer-extras" style="display: flex; gap: 2rem; align-items: center;">
+      <span class="nz-beef-badge" style="font-family: var(--font-heading); background: var(--primary); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.9rem;">100% NZ Beef</span>
+      <ul class="social">
+        <li><a href="https://github.com/{{ site.author.github }}" rel="me">GitHub</a></li>
+        <li><a href="https://instagram.com/biltongbites" rel="me">Instagram</a></li>
+        <li><a href="https://facebook.com/biltongbites" rel="me">Facebook</a></li>
+        <li><a href="mailto:{{ site.author.email }}" rel="me">Email</a></li>
+      </ul>
+    </div>
   </div>
 </footer>

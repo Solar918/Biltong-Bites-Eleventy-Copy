@@ -1,8 +1,8 @@
 :root {
   --bg: #fdfcf8;
-  --text: #2c1e1e;
+  --text: #2D2424;
   --muted: #7a665a;
-  --primary: #8e2424;
+  --primary: #D64933;
   --primary-contrast: #ffffff;
   --accent: #c5a059;
   --card: #ffffff;
@@ -186,6 +186,7 @@ h6 {
   color: var(--primary-contrast);
   border: none;
   padding: 0.85rem 2.25rem;
+  min-height: 44px;
   border-radius: var(--radius);
   text-decoration: none;
   display: inline-flex;
@@ -313,10 +314,11 @@ h6 {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  position: relative;
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
   opacity: 0;
   transform: translateY(20px);
 }
@@ -350,6 +352,20 @@ h6 {
 
 .card:hover .card-media img {
   transform: scale(1.05);
+}
+
+.best-value-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 4px;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
 }
 
 .card-body {
@@ -747,6 +763,22 @@ label {
 }
 
 @media (max-width: 600px) {
+  .btn {
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+  }
+
+  .footer-grid {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .products {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
   .nav-toggle {
     display: block;
     background: none;

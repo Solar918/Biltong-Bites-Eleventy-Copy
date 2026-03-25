@@ -5,6 +5,9 @@
   data-quantity="{{ (product.data.quantity or []).join(' ').toLowerCase() }}"
   data-price="{{ product.data.price or '' }}">
   <a href="{{ product.url }}" class="card-media">
+    {% if "1kg" in product.data.title | lower or "500g" in product.data.title | lower %}
+      <div class="best-value-badge">Best Value</div>
+    {% endif %}
     {% if product.data.image %}
       <img loading="lazy" src="{{ product.data.image }}" alt="{{ product.data.title }}" />
     {% else %}
